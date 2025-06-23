@@ -11,6 +11,8 @@ import (
 	"strings"
 	"sync"
 
+	"sigs.k8s.io/yaml"
+
 	corev1 "k8s.io/api/core/v1"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -178,10 +180,22 @@ func (c *Client) ListResources(ctx context.Context, kind, namespace, labelSelect
 // (e.g., resource not found), it attempts to create the resource.
 // Requires the resource manifest to include a name.
 // Returns the unstructured content of the created/updated resource, or an error.
-func (c *Client) CreateOrUpdateResource(ctx context.Context, kind, namespace, manifest string) (map[string]interface{}, error) {
+func (c *Client) CreateOrUpdateResource(ctx context.Context, namespace, manifest string) (map[string]interface{}, error) {
 	obj := &unstructured.Unstructured{}
-	if err := json.Unmarshal([]byte(manifest), &obj.Object); err != nil {
-		return nil, fmt.Errorf("failed to parse resource manifest: %w", err)
+	data := []byte(manifest)
+	if err := json.Unmarshal(data, &obj.Object); err != nil {
+		jsonData, yamlErr := yaml.YAMLToJSON(data)
+		if yamlErr != nil {
+			return nil, fmt.Errorf("failed to parse resource manifest: %w", err)
+		}
+		if err := json.Unmarshal(jsonData, &obj.Object); err != nil {
+			return nil, fmt.Errorf("failed to parse resource manifest: %w", err)
+		}
+	}
+
+	kind := obj.GetKind()
+	if kind == "" {
+		return nil, fmt.Errorf("resource kind is required")
 	}
 
 	gvr, err := c.getCachedGVR(kind)
