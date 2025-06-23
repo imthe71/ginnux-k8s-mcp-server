@@ -391,7 +391,7 @@ Retrieves events for a specific namespace or resource.
 Creates a new resource or updates an existing one from a YAML or JSON manifest.
 
 **Parameters:**
-- `manifest` (string, required): The YAML or JSON manifest of the resource.
+- `manifest` (string, required): The YAML or JSON manifest of the resource. The server accepts either format.
 - `namespace` (string, optional): The namespace in which to create/update the resource. If the manifest contains a namespace, this parameter can be used to override it. If not provided and the manifest doesn't specify one, "default" might be assumed or it might be an error depending on the resource type.
 
 **Example:**

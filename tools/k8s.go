@@ -1,4 +1,3 @@
-
 // Package tools provides MCP tool handlers for interacting with Kubernetes.
 package tools
 
@@ -118,10 +117,9 @@ func GetEventsTool() mcp.Tool {
 // create or update resource of any type or kind
 func CreateOrUpdateResourceTool() mcp.Tool {
 	return mcp.NewTool(
-		"createResource",
-		mcp.WithDescription("Create a resource in the Kubernetes cluster"),
-		mcp.WithString("kind", mcp.Required(), mcp.Description("The type of resource to create")),
+		"createOrUpdateResource",
+		mcp.WithDescription("Create or update a resource in the Kubernetes cluster"),
 		mcp.WithString("namespace", mcp.Description("The namespace of the resource")),
-		mcp.WithString("manifest", mcp.Required(), mcp.Description("The manifest of the resource to create")),
+		mcp.WithString("manifest", mcp.Required(), mcp.Description("The manifest of the resource to create or update")),
 	)
 }
