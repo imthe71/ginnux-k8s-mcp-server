@@ -314,9 +314,23 @@ func CreateOrUpdateResource(client *k8s.Client) func(ctx context.Context, reques
 			return nil, fmt.Errorf("invalid arguments type: expected map[string]interface{}")
 		}
 
-		manifest, err := getRequiredStringArg(args, "manifest")
-		if err != nil {
-			return nil, err
+		manifestVal, ok := args["manifest"]
+		if !ok {
+			return nil, fmt.Errorf("missing required parameter: manifest")
+		}
+
+		var manifest string
+		switch v := manifestVal.(type) {
+		case string:
+			manifest = v
+		case map[string]interface{}:
+			b, marshalErr := json.Marshal(v)
+			if marshalErr != nil {
+				return nil, fmt.Errorf("failed to marshal manifest: %w", marshalErr)
+			}
+			manifest = string(b)
+		default:
+			return nil, fmt.Errorf("invalid manifest type: %T", manifestVal)
 		}
 
 		namespace := getStringArg(args, "namespace", "")
