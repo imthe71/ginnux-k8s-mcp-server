@@ -120,6 +120,14 @@ func CreateOrUpdateResourceTool() mcp.Tool {
 		"createOrUpdateResource",
 		mcp.WithDescription("Create or update a resource in the Kubernetes cluster"),
 		mcp.WithString("namespace", mcp.Description("The namespace of the resource")),
-		mcp.WithString("manifest", mcp.Required(), mcp.Description("The manifest of the resource to create or update")),
+		// Accept the manifest as a generic object so callers don't have
+		// to JSON-escape the entire manifest string. This prevents
+		// encoding issues when agents send structured JSON.
+		mcp.WithObject(
+			"manifest",
+			mcp.Required(),
+			mcp.Description("The manifest of the resource to create or update"),
+			mcp.AdditionalProperties(true),
+		),
 	)
 }
